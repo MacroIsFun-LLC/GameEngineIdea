@@ -1,0 +1,327 @@
+Project: Client-Server Game Architecture
+Overview
+This document outlines the core components of a client-server game architecture, with expanded features for the Editor to support more intricate world design and streamline the development workflow. The system emphasizes data integrity and consistency between the Editor, the Client, and the Server, all unified by the Game Datafiles.
+
+The Editor: The Creation Tool
+The Editor is the developer-facing application used to build and live-edit the game world. It serves as both the creative tool and the developer-mode client, providing a live, editable view of the active world.
+
+Map Creation & Tilesets: The Editor will now be able to import .png files as tilesets, allowing for a richer visual variety in the game world.
+
+Chunk-Based World Building: The Editor will now support creating and manipulating "chunks", which are groups of multiple tiles. This allows developers to work more efficiently with larger, repeatable sections of a map.
+
+Chunk Definition: The developer can enter a "Chunk Mode" where a selection box appears. The mouse wheel can be used to cycle through predefined square chunk sizes: 1x1, 4x4, 6x6, 8x8, 9x9, 10x10, 12x12, and 14x14. The 16x16 size will be a selectable option, and the 16x6 size could be a custom, non-square chunk that can be saved.
+
+Tile Manipulation: Core functions like copy, paste, select, and delete will be available for both individual tiles and entire chunks. These functions will not only copy the visual tile data but also their associated terrain types and any objects placed on them, streamlining the map-building process.
+
+Terrain Types: The Editor will assign specific properties to tiles, defining initial key terrain types that impact player movement and gameplay, with the ability to add more in the future:
+
+Passable: Standard ground tiles where players can move freely.
+
+Non-Passable: Obstacles like walls or rocks that block player movement.
+
+Water: A terrain type that may slow player movement or require a specific item to cross.
+
+Lava: A dangerous terrain type that damages the player upon entry.
+
+Data Management: All game data, including the new tile and chunk information, is saved into local files (rooms.dat, items.dat, npcs.dat). These files remain obfuscated or encrypted for protection.
+
+Export Options: The Editor retains its ability to export a standalone client executable and a headless server executable. This headless server can be used for a localized version of the game, without the need for the Editor to be present, making it suitable for single-player or LAN play as it would be a benchmark of that version.
+
+The Client: The Player's Interface
+The Client is the application that players run. It is being updated to include a full user interface for player stats and a login system.
+
+Login System: Upon opening the client, a login interface will be displayed.
+
+UI Elements: This interface will include a field for the account, a field for the password, and a "Login" button to initiate the connection. A separate "Create Account" button will direct the user to the registration interface.
+
+Login Progress: Below the login fields, a percentage bar will appear. This bar will show the progress of the login process, including connecting to the server, downloading new game files, and listing the files and processes happening in the background. A close button will be available to shut down the client.
+
+Security: For creating an account, the interface will include fields for an account name, email, and password. The password will be SHA hashed before being sent to the server to ensure that no one can retain the original password.
+
+Player Name: Players will be able to set and see their unique in-game name.
+
+Player Stats UI: The client's UI will now prominently display player stats, including:
+
+Health: A crucial metric indicating the player's life.
+
+Stats: A set of core attributes that affect gameplay: Strength, Construction, Dexterity, and Intelligence.
+
+Stat Point Allocation: When a new player starts, they will receive a pool of starting stat points. A dedicated "Set Stat Points" button will allow the player to allocate these points to their desired stats via the UI. Once allocated, this data is sent to the server to be permanently saved.
+
+Connectivity and Synchronization: The client still connects to the server via a TCP socket and performs a checksum to ensure its local datafiles are up-to-date with the server's. This process will be executed upon every login. This is where the client will receive new datafiles from the server if any have been updated since their last session.
+
+Global Chat & Live Updates: The client will feature a global chat window that displays messages about game events, such as when new items are added to the world.
+
+The Server: The Game's Brain
+The Server remains the logical core of the game. It is now responsible for processing and managing the new player data.
+
+Hosting & Game Loop: The server continues to host a TCP socket and runs a continuous Game Loop to update the game state.
+
+Player Data Management: The server will load player data upon login, including their stats and name. It will also be responsible for saving any changes made to a player's stats or inventory. The server will also handle the safe re-log process by saving the player's current state and ensuring all data is persisted before disconnection.
+
+Data & Broadcasting: The server serializes the world and player data (e.g., using JSON or Protocol Buffers) and broadcasts updates to all connected clients. It will now also manage the state of the new terrain types (e.g., handling player movement through water or damage from lava) and broadcast live game events, such as new items spawning, to the global chat.
+
+Game Datafiles: The Shared Foundation
+The Game Datafiles are the static resources that link the Editor, Client, and Server, now with added detail for terrain properties.
+
+Content: These files store the structured data for the game, including map layouts, NPC data, and now, the properties of each tile type (Passable, Non-Passable, Water, Lava).
+
+Consistency: The files are still created in the Editor, loaded by the Server, and synced/patched by the Client, ensuring a consistent and reliable game experience.
+
+A Comprehensive Look into the Editor
+The Editor is the central creative hub of this entire project, designed for a streamlined and intuitive developer experience.
+
+I. Main Interface & Global Features
+The Editor's interface is built around a menu bar and toolbar, providing access to all major functions.
+
+Menu Bar: The central hub for all major functions, organized into logical categories.
+
+File: File management (Open, New, Compile, Build, Exit).
+
+Artwork: Import art assets.
+
+Edit: Standard editing tools (likely Cut, Copy, Paste).
+
+Game Data: Access to specialized editors (see II).
+
+Usecodes: Scripting and code management (Open, New, Create Local Data, Create Game Data).
+
+Export: Generate game files for distribution (Export Client, Export Server, Export Wep n Armor).
+
+View: Interface customization (Toggle Toolbar, Status Bar).
+
+Help: Application information ("About Dransik Editor...").
+
+Toolbar: A set of quick-access icons mirroring menu functions, improving workflow.
+
+Core Tools: Save, Cut, Copy, Paste.
+
+Navigation & View: Zoom, Toggle Grid.
+
+Specialized Modes:
+
+M, A, T icons: Represent different editing modes (Map, Artwork, Tiles).
+
+Chunk Allocation/Locking: For managing large sections of the map.
+
+Layer Modes: Terrain Mode, Game Data, Tiles.
+
+Asset Filtering: Dropdown menus to filter the sprite palette.
+
+Artwork Source: "ORIGINAL" vs. "IMPORTED."
+
+Category: "Weapons," "Armor," "Npcs," "Misc," "Pots," "Usable," "Currency," etc.
+
+II. Specialized Editors (Accessible via "Game Data" Menu)
+Each editor provides a focused environment for a specific development task.
+
+Map Editor: The primary tool for world-building.
+
+Workspace: A large grid representing the game world, where tiles are placed.
+
+Grid: An overlay that assists with precise placement.
+
+Palette: A panel containing all available sprites (tiles, objects, characters).
+
+Functionality:
+
+"Painting" terrain (grass, water, roads).
+
+Placing objects (buildings, trees, items) and characters (NPCs, players).
+
+Managing large map sections with "Chunk" modes.
+
+Object Type Editor: For defining the properties and behaviors of in-game entities.
+
+Name Field: Assigns a name to the object (e.g., "Dagger," "Healing Potion").
+
+"Family" Dropdown: Categorizes the object (e.g., "Weapon," "Armor," "Npc").
+
+Properties Panel: A detailed list of attributes to define the object's characteristics:
+
+Physical: "Not Moveable," "Solid," "Weight," "Mass."
+
+Gameplay: "Collectible," "Is Container," "Is a Treasure," "Retails for..."
+
+Visual/FX: "Illuminates," "Brightness," "Radius."
+
+Visual & Code Assignment:
+
+"Select Tile": Links the object to a visual sprite from the palette.
+
+"Select Anim": Links the object to an animation.
+
+"Edit Usecode": Links a script to the object for custom behavior.
+
+Animation Editor: For creating and managing animated sequences.
+
+Workspace: A large sprite sheet containing all animation frames.
+
+Animation Controls: A panel to preview and edit animation sequences, including speed.
+
+Functionality: Assembles individual sprites into a fluid animation for characters or objects.
+
+Other Editors (Inferred from Menus):
+
+Npc Editor: For defining Non-Player Characters (AI, dialogue, stats).
+
+Shop Editor: For managing item inventories of in-game shops.
+
+Encounters: For setting up monster spawns or random events.
+
+Treasures: For defining loot tables and treasure contents.
+
+Trade Data: For managing item trading mechanics.
+
+III. Core Development Workflow
+The editor promotes a streamlined workflow by separating concerns:
+
+Artwork Import: A developer would first import all their sprites and art assets.
+
+Object Definition: Using the Object Type Editor, they would define every object, item, and character, assigning a sprite and setting its properties and family.
+
+Animation Creation: The Animation Editor is used to create animated sequences for characters and dynamic objects.
+
+Map Design: The Map Editor is used to build the game world. The asset palette and its filtering capabilities allow the developer to efficiently place the previously defined objects and characters onto the map.
+
+Scripting: The Usecodes menu allows the developer to add custom logic and behavior to the game.
+
+Export: Finally, the Export menu compiles all the created data and assets into the final game files for both the client and server.
+
+Usecodes and Scripting: The Language of Behavior
+The usecode system is the backbone of all object-based interactions, creating a robust, event-driven scripting language that powers the game.
+
+The .use File Language: An Overview
+The .use files define Object behaviors for a game engine. The language is event-driven, meaning that an object only performs an action when a specific event happens to it. The entire file structure is based on a simple, readable format.
+
+Core Syntax:
+
+Objects: The central building blocks. An Object declaration defines a named template for an item or character, like "Saw" or "Thief." Many objects of the same type can exist, but they all share the same instructions.
+
+Events: These are the triggers for action. They are declared with a special keyword followed by a code block in curly braces {}. Examples include OnUse, OnLook, or OnDeath. When a player interacts with an object in the game, the corresponding event logic is executed.
+
+Commands: These are the pre-defined actions the game engine can take. Think of them as the game's internal API. They are called directly within an event block. Common commands include Print, Create, Teleport, Destroy, and TestSkill.
+
+Variables & Properties: Objects and players have properties that can be accessed and modified, such as player.health, object.quality, and object.quantity. These are used to store state, track durability, and control logic.
+
+Deployment and Usage:
+
+File Organization: The .use files are placed in a designated directory on the server.
+
+Engine Startup: When the game starts, the engine scans this directory, reads every .use file, and parses the code. It builds a map in its memory, linking each object name to its specific event-driven instructions.
+
+In-Game Events: During gameplay, when a player uses a Healing Potion, the game detects the OnUse event on the potion object. It then looks up the instructions for OnUse in its in-memory map and executes them. This would include commands to increase the player's health, decrease the potion's quantity, and print a message.
+
+This architecture is powerful because it allows for a high degree of customization without modifying the core game engine. The editor's purpose would be to generate these text files, acting as a user-friendly interface for building the game's logic.
+
+Deeper Dive into API Calls
+An editor would translate the user's clicks and inputs into these API calls, which in turn generate the .use code. Here's a comprehensive breakdown of the key functionalities:
+
+1. Item Interaction & Consumption (OnUse Event)
+
+API Endpoint: POST /api/object/use
+
+Purpose: To define an object's main function when a player interacts with it. This is the most versatile event.
+
+Parameters: The ID of the object being used (object_id) and the ID of the player using it (player_id).
+
+Example Code (Healing Potion.use):
+
+If health Equals player.max_health
+{
+  Print "You do not need to be healed.\n"
+  Done
+}
+health = health + val
+player.health = health;
+quant = object.quantity - 1
+Destroy object
+
+Editor's Role: The editor would present a form for OnUse events. A user could add a "Heal Player" action, specifying the health range. The editor would then generate the variables (health, val) and the appropriate If statements to check the player's current health and apply the healing.
+
+2. Item Descriptions (OnLook Event)
+
+API Endpoint: GET /api/object/look
+
+Purpose: To provide a descriptive text for an object. The text often changes based on the object's state.
+
+Parameters: The ID of the object (object_id).
+
+Example Code (Saw.use):
+
+qual = object.quality
+If qual < 10
+{
+  Print "a very sharp Saw"
+}
+// ... more conditions
+
+Editor's Role: A user could define different descriptions for an item's durability. The editor would create a field for "Durability" and let the user enter text for different ranges (e.g., "new", "used", "broken"), then generate the If statements that check object.quality.
+
+3. Item Requirements (OnEquip Event)
+
+API Endpoint: POST /api/object/equip
+
+Purpose: To check if a player meets the criteria to equip an item.
+
+Parameters: The ID of the item to equip (item_id) and the ID of the player (player_id).
+
+Example Code (Darksword.use):
+
+BeginSearchIn player
+Loop
+{
+  scabbard = Search
+  If scabbard.type Equals TYPE_SCABBARD_OF_ARCUS
+  {
+    Return 0
+  }
+}
+Return 1
+
+Editor's Role: The editor could offer a list of conditions (e.g., "Player Level is...", "Player Alignment is...", "Player has Item X in inventory"). The user checks a box and fills out the parameters, and the editor writes the If statements and searches.
+
+4. Game Events (OnDeath, OnNpcUse, etc.)
+
+API Endpoint: POST /api/event/run (a generic endpoint for specific events)
+
+Purpose: To handle actions that are not initiated by a player's direct use of an object.
+
+Parameters: The name of the event (event_name), the subject of the event (object_id), and any other relevant context (e.g., player_id).
+
+Example Code (Player Generic.use):
+
+OnDeath
+{
+  dead_body = Create TYPE_DEAD_BODY
+  // ... more logic to transfer items
+}
+
+Editor's Role: The editor could have a section dedicated to "World Rules" or "Character Rules" where events like OnDeath are defined. A user could specify what kind of "dead body" is created and which items are transferred upon death.
+
+5. Teleportation (Teleport Command)
+
+API Endpoint: POST /api/teleport
+
+Purpose: To handle all forms of player and object movement.
+
+Logic: It receives a player or object ID and new coordinates (x, y, map). The API executes a Teleport command to instantly move the object to the specified location.
+
+Examples:
+
+Recall Wand: Teleports a player to a stored location.
+
+Ship Deed: Teleports a newly created ship to a valid water tile.
+
+Suggestions for a Better Editor
+To make the editor truly comprehensive and user-friendly, you could add the following features:
+
+Visual Command Builder: Instead of typing raw code, use a drag-and-drop or form-based interface to build command sequences. The user selects a command like Create, and the editor presents a dropdown of all TYPE_ constants from the types.h file.
+
+Syntax Highlighting and Validation: The editor should automatically color-code keywords, variables, and comments. It should also validate the code in real-time, highlighting errors like a missing variable declaration or a typo in a command name.
+
+Cross-File Linking: The editor should understand that a Dead Orc object is created by an Orc's OnDeath event. A good editor would show these relationships visually, so a user can jump directly from a monster's death event to the definition of its dead body.
+
+Integrated Help: The editor should have a built-in reference for all commands and properties, with descriptions of what they do and what parameters they require. Hovering over a command like TestSkill should display a tooltip explaining its function.
+
+Modular Development: The current system has a lot of logic in single files. A better editor could help modularize the code. For example, a user could define a "Lootable Container" template with a single OnUse event that can be applied to all container objects without copying and pasting code.
