@@ -11,90 +11,81 @@ integrity and modular development.
 ## 1. The Core Architecture
 
 The game's foundation is a **client-server model** unified by a shared
-set of **Game Datafiles**.\
-This architecture separates the game's logic (**Server**) from the
-player's interface (**Client**), ensuring a consistent and secure
-experience.
+set of **Game Datafiles**. This architecture separates the game's logic
+(**Server**) from the player's interface (**Client**), ensuring a
+consistent and secure experience.
 
--   **The Editor**: A comprehensive development tool for world-building
-    and live-editing. It is the single point of creation for all static
-    game content.\
--   **The Client**: The player-facing application. Handles rendering,
-    input, and server communication.\
--   **The Server**: The game's central authority. Hosts the game world,
-    processes logic, and manages player data.\
--   **Game Datafiles**: Encrypted files containing all static game
-    definitions (maps, items, etc.). They serve as the **source of
-    truth** across Editor, Client, and Server.
+-   **The Editor**: A comprehensive development tool that allows for
+    world-building and live-editing of the game. It is the single point
+    of creation for all static game content.
+-   **The Client**: The player-facing application. It handles all visual
+    rendering, player input, and communication with the server.
+-   **The Server**: The game's central authority. It hosts the game
+    world, processes all logic, and manages player data.
+-   **Game Datafiles**: Encrypted files containing all the static
+    information that defines the game world, from maps to item
+    properties. They act as the "source of truth" and are synchronized
+    between the Editor, Client, and Server.
 
 ------------------------------------------------------------------------
 
 ## 2. The Editor: The Creation & Live-Editing Tool
 
-The Editor is both the **primary development tool** and a **live-editing
-client**, providing a visual and intuitive way to build the game world.
+The Editor is a powerful application that serves as both the primary
+development tool and a live-editing client. It provides a visual and
+intuitive way to build the game world and its behaviors.
 
 ### A. Main Interface & Global Features
 
--   **Menu Bar**
-    -   **File**: Create, save, compile `.use` code, build, and exit.\
-    -   **Artwork**: Import `.png` files for sprites/tilesets.\
-    -   **Edit**: Cut, Copy, Paste for tiles, objects, and chunks.\
-    -   **Game Data**: Access specialized editors (Map, Object,
-        Animation, etc.).\
-    -   **Usecodes**: Manage scripts for objects.\
-    -   **Export**: Package standalone client, headless server, or
-        specialized files.\
-    -   **View**: Toggle Toolbar, Status Bar, and UI components.
--   **Toolbar**: One-click access to save, copy, paste, navigation
-    (Zoom, Grid), and **Layer Mode** (terrain, objects, tiles).\
--   **Asset Filtering**: Dropdowns to filter assets by **source**
-    (Original / Imported) and **category** (Weapons, Armor, NPCs, etc.).
+-   **Menu Bar**: Central hub for all major functions.
+    -   **File**: Create, save, compile `.use` code, build, exit.
+    -   **Artwork**: Import `.png` sprite/tileset assets.
+    -   **Edit**: Cut, Copy, Paste tools for tiles, objects, chunks.
+    -   **Game Data**: Access Map, Object, Animation editors.
+    -   **Usecodes**: Manage object scripting.
+    -   **Export**: Create standalone client/server or asset bundles.
+    -   **View**: Toggle Toolbar, Status Bar, and UI elements.
+-   **Toolbar**: Icons for frequent actions like Save, Cut, Copy, Paste,
+    Zoom, Grid, and **Layer Mode**.
+-   **Asset Filtering**: Dropdowns to filter by source (Original /
+    Imported) and category (e.g., Weapons, Armor, NPCs).
 
 ### B. Specialized Editors
 
 -   **Map Editor**
-    -   Grid workspace + overlay grid.\
-    -   Palette of sprites/assets.\
-    -   Terrain painting, object placement, and **Chunk Mode**
-        (duplicate large sections like 4×4, 8×8, 16×16).
+    -   Grid workspace, tile/object overlay, sprite palette.
+    -   Terrain painting, object placement, **Chunk Mode** (4x4, 8x8,
+        16x16).
 -   **Object Type Editor**
-    -   Assign **name** + **family** (Weapon, Armor, NPC).\
-    -   Properties: Physical (Weight, Mass), Gameplay (Collectible,
-        Container), Visual (Illumination, Brightness).\
-    -   **Assignment**: Link to sprite + animation. Includes **Edit
-        Usecode** button.
+    -   Assign name and family (e.g., Weapon, NPC).
+    -   Configure Physical, Gameplay, and Visual properties.
+    -   Link to sprite, animation, and usecode behavior.
 -   **Animation Editor**
-    -   Assemble sprite frames into animations.\
-    -   Control playback speed and sequencing.
+    -   Frame assembly for characters/objects.
+    -   Set playback speed and looping.
 
 ### C. Core Development Workflow
 
-1.  **Artwork Import** -- Import all `.png` assets.\
-2.  **Object Definition** -- Define objects, properties, and assign
-    sprites.\
-3.  **Animation Creation** -- Build character/object animations.\
-4.  **Map Design** -- Build world maps with objects, filtering, and
-    chunks.\
-5.  **Scripting** -- Add behaviors via Usecodes.\
-6.  **Export** -- Compile into final obfuscated game files.
+1.  **Artwork Import**
+2.  **Object Definition**
+3.  **Animation Creation**
+4.  **Map Design**
+5.  **Scripting**
+6.  **Export**
 
 ------------------------------------------------------------------------
 
 ## 3. The Usecode and Scripting System
 
-The **usecode system** is the backbone of object-based interactions. It
-is an **event-driven scripting language** that allows high customization
-without engine modification.
+The **usecode system** is an event-driven scripting layer enabling
+object behavior without modifying the engine.
 
 ### A. The `.use` File Language
 
-**Core Syntax:** - **Objects**: Named templates for items/characters.\
-- **Events**: Triggered blocks (e.g., `OnUse`, `OnLook`).\
-- **Commands**: Built-in actions (`Print`, `Create`, `TestSkill`).\
-- **Variables/Properties**: Example: `player.health`, `object.quality`.
-
-### Example Structure
+-   **Objects**: Define templates (e.g., `Object "Saw"`).
+-   **Events**: Triggered actions (`OnUse`, `OnLook`).
+-   **Commands**: Built-in actions (`Print`, `Create`, `TestSkill`).
+-   **Properties**: Dynamic values (`player.health`, `object.quality`).
 
 ``` text
 Object "Saw" {
@@ -107,53 +98,77 @@ Object "Saw" {
 }
 ```
 
-### B. API Calls & The Editor's Role
+### B. API Calls & Editor Integration
 
-The Editor translates visual inputs → `.use` code through backend API
-calls:
-
--   `POST /api/object/use` → Define primary function (e.g., heal
-    player).\
--   `GET /api/object/look` → Define descriptions (e.g., durability
-    states).\
--   `POST /api/object/equip` → Requirements for equipping (stats,
-    skills).\
--   `POST /api/event/run` → Handle events (e.g., OnDeath spawn loot).\
--   `POST /api/teleport` → Handle movement/teleports.
+-   `POST /api/object/use`: Define use behavior.
+-   `GET /api/object/look`: Generate descriptions.
+-   `POST /api/object/equip`: Set equip conditions.
+-   `POST /api/event/run`: Handle OnDeath, etc.
+-   `POST /api/teleport`: Handle movement.
 
 ------------------------------------------------------------------------
 
 ## 4. The Client: The Player's Interface
 
-The **Client** is the secure entry point for players.
-
 ### A. Login System
 
--   **UI Elements**: Account, Password, Login button, Create Account
-    form (with email).\
--   **Progress Bar**: Displays connection + file sync progress.\
--   **Security**: Passwords are SHA hashed before server transmission.\
--   **Safe Re-Log**: Progress saved, checksum ensures updated files.\
--   **Global Chat**: Displays system + in-game event messages.
+-   **UI**: Account, password, login, registration (with email).
+-   **Progress Bar**: Shows connection/sync status.
+-   **Security**: SHA hash passwords.
+-   **Safe Re-Log**: Auto sync + resume.
+-   **Global Chat**: Event notifications.
 
-### B. Player & Stat UI
+### B. In-Game UI & Mechanics
 
--   **Player Name** -- Displayed prominently.\
--   **Health** -- Vital status bar.\
--   **Stats** -- Strength, Construction, Dexterity, Intelligence.\
--   **Stat Point Allocation** -- Allocate starter points via button.
+-   **Chat System**: Toggled with `T`, expandable, scrollback log.
+
+    -   In-View, Global, Guild (if applicable), Admin (if applicable).
+
+-   **Guild System**
+
+    -   **Purchase** to found guilds.
+    -   Leader tools: Add (crosshair), Kick.
+    -   Member view: List, Leave button.
+    -   Guild Bank: Shared inventory.
+
+-   **Game Area**: 16x16 tiles, centered on player, dynamic scrolling.
+
+-   **Render & Stasis Zones**: Load 20-tile radius; stasis for
+    off-screen monsters.
+
+-   **Inventory & Equipment**
+
+    -   Free-form backpack, movable items.
+    -   Lock position via right-click.
+    -   Gear slots: helmet, plate, shield, etc.
+
+-   **Day/Night Cycle**: 1 real-hour = 1 game day.
+
+-   **Skill Window**: Hotkey toggles view.
 
 ------------------------------------------------------------------------
 
 ## 5. The Server: The Game's Brain
 
-The **Server** is the logical core, running independently of the Editor.
+### A. Core Server Functions
 
--   **Hosting**: TCP socket + continuous **Game Loop**.\
--   **Data Management**: Load/save player data, run usecodes, process
-    world events.\
--   **Export Options**: Editor can produce:
-    -   Standalone **client executable**.\
-    -   **Headless server executable** (for LAN or single-player).
+-   TCP hosting + game loop.
+-   **Tick Speed**: Configurable.
+-   **Movement**: Server-side validation.
+-   **Data Management**: Player data, guilds, banks, usecode events.
+-   **Export Options**: Standalone client/server, headless LAN server.
+
+### B. Monster AI & Stasis
+
+-   **Spawn Management**: Editor-defined.
+-   **Active AI**: Enabled within 20 tiles.
+-   **Stasis**: Disable AI beyond range.
+
+### C. Player Death System
+
+-   **Body Generation**: Drops items.
+-   **Decay Timer**: 15 minutes, with stages.
+-   **Final Decay**: Items drop to ground.
+-   **Item Despawn**: 6-minute creeper process.
 
 ------------------------------------------------------------------------
