@@ -1,0 +1,67 @@
+Project: Client-Server Game Architecture
+Overview
+This document outlines the core components of a client-server game architecture, now with expanded features for the Editor and Client to support a more complex game world and player interaction. The system emphasizes data integrity and consistency between the Editor, the Client, and the Server, all unified by the Game Datafiles.
+
+The Editor: The Creation Tool
+The Editor is the developer-facing application used to build the game world. Its functionality is being expanded to support more intricate world design.
+
+Map Creation & Tilesets: The Editor will now be able to import .png files as tilesets, allowing for a richer visual variety in the game world.
+
+Chunk-Based World Building: Instead of placing single tiles, the Editor will support creating and manipulating "chunks", which are groups of multiple tiles. This allows developers to work more efficiently with larger, repeatable sections of a map.
+
+Tile Manipulation: Core functions like copy, paste, select, and delete will be available for both individual tiles and entire chunks, streamlining the map-building process.
+
+Terrain Types: The Editor will assign specific properties to tiles, defining four key terrain types that impact player movement and gameplay:
+
+Passable: Standard ground tiles where players can move freely.
+
+Non-Passable: Obstacles like walls or rocks that block player movement.
+
+Water: A terrain type that may slow player movement or require a specific item to cross.
+
+Lava: A dangerous terrain type that damages the player upon entry.
+
+Data Management: All game data, including the new tile and chunk information, is saved into local files (rooms.dat, items.dat, npcs.dat). These files remain obfuscated or encrypted for protection.
+
+Export Options: The Editor retains its ability to export a standalone client executable and a headless server executable.
+
+The Client: The Player's Interface
+The Client is the application that players run. It is being updated to include a full user interface for player stats and a login system.
+
+Login System: Upon launching the client, players will be prompted to log in or create an account. This system will be linked to the server for authentication and data management.
+
+Player Name: Players will be able to set and see their unique in-game name.
+
+Player Stats UI: The client's UI will now prominently display player stats, including:
+
+Health: A crucial metric indicating the player's life.
+
+Stats: A set of core attributes that affect gameplay:
+
+Strength: Affects physical damage and carrying capacity.
+
+Construction: Affects building and crafting abilities.
+
+Dexterity: Affects agility and chance to dodge.
+
+Intelligence: Affects magical abilities or puzzle-solving skills.
+
+Stat Point Allocation: When a new player starts, they will receive a pool of starting stat points. A dedicated "Set Stat Points" button will allow the player to allocate these points to their desired stats via the UI. Once allocated, this data is sent to the server to be permanently saved.
+
+Connectivity and Synchronization: The client still connects to the server via a TCP socket and performs a checksum to ensure its local datafiles are up-to-date with the server's.
+
+The Server: The Game's Brain
+The Server remains the logical core of the game. It is now responsible for processing and managing the new player data.
+
+Hosting & Game Loop: The server continues to host a TCP socket and runs a continuous Game Loop to update the game state.
+
+Player Data Management: The server will load player data upon login, including their stats and name. It will also be responsible for saving any changes made to a player's stats or inventory.
+
+Data & Broadcasting: The server serializes the world and player data (e.g., using JSON or Protocol Buffers) and broadcasts updates to all connected clients. It will now also manage the state of the new terrain types (e.g., handling player movement through water or damage from lava).
+
+Game Datafiles: The Shared Foundation
+The Game Datafiles are the static resources that link the Editor, Client, and Server, now with added detail for terrain properties.
+
+Content: These files store the structured data for the game, including map layouts, NPC data, and now, the properties of each tile type (Passable, Non-Passable, Water, Lava).
+
+Consistency: The files are still created in the Editor, loaded by the Server, and synced/patched by the Client, ensuring a consistent and reliable game experience.

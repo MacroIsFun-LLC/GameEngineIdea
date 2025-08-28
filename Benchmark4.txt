@@ -1,0 +1,69 @@
+Project: Client-Server Game Architecture
+Overview
+This document outlines the core components of a client-server game architecture, now with expanded features for the Editor to support more intricate world design and streamline the development workflow. The system emphasizes data integrity and consistency between the Editor, the Client, and the Server, all unified by the Game Datafiles.
+
+The Editor: The Creation Tool
+The Editor is the developer-facing application used to build and live-edit the game world. It serves as both the creative tool and the developer-mode client, providing a live, editable view of the active world.
+
+Map Creation & Tilesets: The Editor will now be able to import .png files as tilesets, allowing for a richer visual variety in the game world.
+
+Chunk-Based World Building: The Editor will now support creating and manipulating "chunks", which are groups of multiple tiles. This allows developers to work more efficiently with larger, repeatable sections of a map.
+
+Chunk Definition: The developer can enter a "Chunk Mode" where a selection box appears. The mouse wheel can be used to cycle through predefined square chunk sizes: 1x1, 4x4, 6x6, 8x8, 9x9, 10x10, 12x12, and 14x14. The 16x16 size will be a selectable option, and the 16x6 size could be a custom, non-square chunk that can be saved.
+
+Tile Manipulation: Core functions like copy, paste, select, and delete will be available for both individual tiles and entire chunks. These functions will not only copy the visual tile data but also their associated terrain types and any objects placed on them, streamlining the map-building process.
+
+Terrain Types: The Editor will assign specific properties to tiles, defining initial key terrain types that impact player movement and gameplay, with the ability to add more in the future:
+
+Passable: Standard ground tiles where players can move freely.
+
+Non-Passable: Obstacles like walls or rocks that block player movement.
+
+Water: A terrain type that may slow player movement or require a specific item to cross.
+
+Lava: A dangerous terrain type that damages the player upon entry.
+
+Data Management: All game data, including the new tile and chunk information, is saved into local files (rooms.dat, items.dat, npcs.dat). These files remain obfuscated or encrypted for protection.
+
+Export Options: The Editor retains its ability to export a standalone client executable and a headless server executable. This headless server can be used for a localized version of the game, without the need for the Editor to be present, making it suitable for single-player or LAN play as it would be a benchmark of that version.
+
+The Client: The Player's Interface
+The Client is the application that players run. It is being updated to include a full user interface for player stats and a login system.
+
+Login System: Upon opening the client, a login interface will be displayed.
+
+UI Elements: This interface will include a field for the account, a field for the password, and a "Login" button to initiate the connection. A separate "Create Account" button will direct the user to the registration interface.
+
+Login Progress: Below the login fields, a percentage bar will appear. This bar will show the progress of the login process, including connecting to the server, downloading new game files, and listing the files and processes happening in the background. A close button will be available to shut down the client.
+
+Security: For creating an account, the interface will include fields for an account name, email, and password. The password will be SHA hashed before being sent to the server to ensure that no one can retain the original password.
+
+Player Name: Players will be able to set and see their unique in-game name.
+
+Player Stats UI: The client's UI will now prominently display player stats, including:
+
+Health: A crucial metric indicating the player's life.
+
+Stats: A set of core attributes that affect gameplay: Strength, Construction, Dexterity, and Intelligence.
+
+Stat Point Allocation: When a new player starts, they will receive a pool of starting stat points. A dedicated "Set Stat Points" button will allow the player to allocate these points to their desired stats via the UI. Once allocated, this data is sent to the server to be permanently saved.
+
+Connectivity and Synchronization: The client still connects to the server via a TCP socket and performs a checksum to ensure its local datafiles are up-to-date with the server's. This process will be executed upon every login. This is where the client will receive new datafiles from the server if any have been updated since their last session.
+
+Global Chat & Live Updates: The client will feature a global chat window that displays messages about game events, such as when new items are added to the world.
+
+The Server: The Game's Brain
+The Server remains the logical core of the game. It is now responsible for processing and managing the new player data.
+
+Hosting & Game Loop: The server continues to host a TCP socket and runs a continuous Game Loop to update the game state.
+
+Player Data Management: The server will load player data upon login, including their stats and name. It will also be responsible for saving any changes made to a player's stats or inventory. The server will also handle the safe re-log process by saving the player's current state and ensuring all data is persisted before disconnection.
+
+Data & Broadcasting: The server serializes the world and player data (e.g., using JSON or Protocol Buffers) and broadcasts updates to all connected clients. It will now also manage the state of the new terrain types (e.g., handling player movement through water or damage from lava) and broadcast live game events, such as new items spawning, to the global chat.
+
+Game Datafiles: The Shared Foundation
+The Game Datafiles are the static resources that link the Editor, Client, and Server, now with added detail for terrain properties.
+
+Content: These files store the structured data for the game, including map layouts, NPC data, and now, the properties of each tile type (Passable, Non-Passable, Water, Lava).
+
+Consistency: The files are still created in the Editor, loaded by the Server, and synced/patched by the Client, ensuring a consistent and reliable game experience.
